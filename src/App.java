@@ -1,16 +1,15 @@
+import java.util.concurrent.TimeUnit;
+
 import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 
 public class App extends Application{
@@ -25,12 +24,14 @@ public class App extends Application{
     public void start(Stage primaryStage) throws Exception {
         //Variables
 
-        primaryStage.setTitle("Sortings Algoritms.");
         Pane root = new Pane();
+        primaryStage.setTitle("Sortings Algoritms.");
         Scene scene = new Scene(root, 600, 400);
         primaryStage.setResizable(false);
-        primaryStage.setScene(scene);
-        primaryStage.show();
+       
+
+        //Whole program in one VBox
+        VBox wholeProgram = new VBox();
 
         //Top Navigation bar
         HBox topNavHBox = new HBox();
@@ -43,34 +44,68 @@ public class App extends Application{
         amountOfNumbers.setPromptText("Please write an Interger");
 
         topNavHBox.getChildren().addAll(start, bubblesort, setAmountOfNumber, amountOfNumbers);
-        root.getChildren().add(topNavHBox);
         
         //Setting the amount of Number from the textField.
         HBox recHBox = new HBox();
+        recHBox.setAlignment(Pos.BOTTOM_LEFT);
+        
         setAmountOfNumber.setOnAction(e -> {
             amount = Integer.parseInt(amountOfNumbers.getText());
             allNumbers =  NumberGenerator.generateNumbers(amount);
 
-            for (int i = 0; i < allNumbers.length; i++) {
-                System.out.println(allNumbers[i]);
-            }
+            //For statement to print all numbers
+            // for (int i = 0; i < allNumbers.length; i++) {
+            //     System.out.println(allNumbers[i]);
+            // }
+            
             //Creating rectangle
             int PostionX = 5;
             for (int element : allNumbers) {
-                int PostionY = ((int)scene.getHeight())+element;
-                Rectangle rectangle = new Rectangle(PostionX, PostionY, 5, element);
+                Rectangle rectangle = new Rectangle(10, element);
                 rectangle.setFill(Color.rgb(0, 255, 0));
-                PostionX += 20;
                 recHBox.getChildren().addAll(rectangle);
             }
             root.getChildren().add(recHBox);
         });
-
-        Rectangle rectangle = new Rectangle(5, ((int)scene.getHeight()-20));
-
-
         
         
+        //Setting the action for the starting button
+        start.setOnAction(e -> {
 
+                for (int j = 0; j < allNumbers.length; j++) {
+                    for (int i = 0; i < allNumbers.length; i++) {
+                        recHBox.getChildren().clear();
+                        allNumbers = BubbleSort.oneIterationBubbleSort(allNumbers, i);
+                        for (int element : allNumbers) {
+                            Rectangle rectangle = new Rectangle(10, element);
+                            rectangle.setFill(Color.rgb(0, 255, 0));
+                            recHBox.getChildren().addAll(rectangle);
+                            wholeProgram.getChildren().remove(recHBox);
+                            wholeProgram.getChildren().add(recHBox);
+
+                            // Here is where we want to do the change update to the view.
+                        
+                        }
+                        try {
+                            TimeUnit.SECONDS.sleep(1);                           
+                        } catch (Exception k) {
+                            System.out.println("we're fucked (Timeout doing sorting didn't work)");
+                            k.getMessage();
+                        }
+
+                    }
+                }
+            
+        });
+        
+        recHBox.setSpacing(2);
+        wholeProgram.getChildren().addAll(topNavHBox, recHBox);
+        wholeProgram.setSpacing(50.5);
+        root.getChildren().add(wholeProgram);
+         
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
+
+    
 }
